@@ -24,6 +24,8 @@ tags:
     description: Operations about User
   - name: Products
     description: Operations about Products
+  - name: Orders
+    description: Operations about Orders
 paths:
   /logout:
     get:
@@ -243,6 +245,12 @@ paths:
       summary: Update product by id (this action must be logged in first)
       description: 'Update product by id'
       operationId: updateProductById
+      requestBody:
+        description: Body Create Product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductsBody'
       parameters:
         - name: user_id
           in: path
@@ -269,24 +277,89 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseProductsError'
+  /users/{user_id}/orders:
+    get:
+      tags:
+        - Orders
+      summary: create order (this action must be logged in first)
+      description: 'Get all orders'
+      operationId: getOrders
+      parameters:
+        - name: user_id
+          in: path
+          description: 'Need parameter user_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: successful get all order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGetOrders'          
+        400:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProductsError'
+    post:
+      tags:
+        - Orders
+      summary: create order (this action must be logged in first)
+      description: 'Create order'
+      operationId: createOrders
+      requestBody:
+        description: Body Create Order
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrdersBody'
+      parameters:
+        - name: user_id
+          in: path
+          description: 'Need parameter user_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: create order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCreateOrder'          
+        400:
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseProductsError'
 components:
   schemas:
-    Order:
+    OrdersBody:
       type: object
       properties:
-        id:
+        user_id:
           type: integer
           format: int64
-          example: 10
-        petId:
+          example: 1
+        amount:
           type: integer
           format: int64
-          example: 198772
-        quantity:
-          type: integer
-          format: int32
-          example: 7
-        shipDate:
+          example: 75000
+        customer_name:
+          type: string
+          format: string
+          example: 'Dwi Waluyo'
+        snap_token:
+          type: string
+          example: '66e4fa55-fdac-4ef9-91b5-733b97d1b862'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
           type: string
           format: date-time
         status:
@@ -294,9 +367,49 @@ components:
           description: Order Status
           example: approved
           enum:
-            - placed
-            - approved
-            - delivered
+            - pending
+            - finish
+            - expired
+        complete:
+          type: boolean
+      xml:
+        name: order
+    Orders:
+      type: object
+      properties:
+        order_id:
+          type: integer
+          format: int64
+          example: 12
+        user_id:
+          type: integer
+          format: int64
+          example: 1
+        amount:
+          type: integer
+          format: int64
+          example: 75000
+        customer_name:
+          type: string
+          format: string
+          example: 'Dwi Waluyo'
+        snap_token:
+          type: string
+          example: '66e4fa55-fdac-4ef9-91b5-733b97d1b862'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          example: approved
+          enum:
+            - pending
+            - finish
+            - expired
         complete:
           type: boolean
       xml:
@@ -665,6 +778,28 @@ components:
           example: null
       xml:
         name: products
+    ResponseGetOrders:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/MetaSuccess'
+        data:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/Orders'
+      xml:
+        name: orders
+    ResponseCreateOrder:
+      type: object
+      properties:
+        meta:
+          $ref: '#/components/schemas/MetaCreateSuccess'
+        data:
+          $ref: '#/components/schemas/Orders'
+      xml:
+        name: orders
     Tag:
       type: object
       properties:
